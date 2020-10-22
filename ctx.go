@@ -95,7 +95,7 @@ func NewCtxWithVersion(version SSLVersion) (*Ctx, error) {
 	case TLSv1_2:
 		method = C.X_TLSv1_2_method()
 	case AnyVersion:
-		method = C.X_SSLv23_method()
+		method = C.X_TLS_method()
 	}
 	if method == nil {
 		return nil, errors.New("unknown ssl/tls version")
@@ -359,6 +359,36 @@ func (c *Ctx) LoadVerifyLocations(ca_file string, ca_path string) error {
 		return errorFromErrorQueue()
 	}
 	return nil
+}
+
+type Version int
+
+const (
+	SSL3_VERSION Version = C.SSL3_VERSION
+	TLS1_VERSION Version = C.TLS1_VERSION
+	TLS1_1_VERSION Version = C.TLS1_1_VERSION
+	TLS1_2_VERSION Version = C.TLS1_2_VERSION
+	TLS1_3_VERSION Version = C.TLS1_3_VERSION
+	DTLS1_VERSION Version = C.DTLS1_VERSION
+	DTLS1_2_VERSION Version = C.DTLS1_2_VERSION
+)
+
+func (c *Ctx) SetMinProtoVersion(version Version) bool {
+	return C.X_SSL_CTX_set_min_proto_version(
+		c.ctx, C.int(version)) == 1
+}
+
+func (c *Ctx) SetMaxProtoVersion(version Version) bool {
+	return C.X_SSL_CTX_set_max_proto_version(
+		c.ctx, C.int(version)) == 1
+}
+
+func (c *Ctx) GetMinProtoVersion() Version {
+	return Version(C.X_SSL_CTX_get_min_proto_version(c.ctx))
+}
+
+func (c *Ctx) GetMaxProtoVersion() Version {
+	return Version(C.X_SSL_CTX_get_max_proto_version(c.ctx))
 }
 
 type Options int

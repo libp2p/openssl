@@ -59,6 +59,7 @@ extern const SSL_METHOD *X_SSLv3_method();
 extern const SSL_METHOD *X_TLSv1_method();
 extern const SSL_METHOD *X_TLSv1_1_method();
 extern const SSL_METHOD *X_TLSv1_2_method();
+extern const SSL_METHOD *X_TLS_method();
 
 #if defined SSL_CTRL_SET_TLSEXT_HOSTNAME
 extern int sni_cb(SSL *ssl_conn, int *ad, void *arg);
@@ -92,6 +93,10 @@ extern int X_SSL_CTX_ticket_key_cb(SSL *s, unsigned char key_name[16],
         EVP_CIPHER_CTX *cctx, HMAC_CTX *hctx, int enc);
 extern int SSL_CTX_set_alpn_protos(SSL_CTX *ctx, const unsigned char *protos,
                              unsigned int protos_len);
+extern int X_SSL_CTX_set_min_proto_version(SSL_CTX *ctx, int version);
+extern int X_SSL_CTX_set_max_proto_version(SSL_CTX *ctx, int version);
+extern int X_SSL_CTX_get_min_proto_version(SSL_CTX *ctx);
+extern int X_SSL_CTX_get_max_proto_version(SSL_CTX *ctx);
 
 /* BIO methods */
 extern int X_BIO_get_flags(BIO *b);

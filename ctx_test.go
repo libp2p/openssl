@@ -46,3 +46,28 @@ func TestCtxSessCacheSizeOption(t *testing.T) {
 		t.Error("SessSetCacheSize() does not save anything to ctx")
 	}
 }
+
+func TestCtxMinProtoVersion(t *testing.T) {
+	ctx, _ := NewCtx()
+	set_success := ctx.SetMinProtoVersion(TLS1_3_VERSION)
+	if !set_success {
+		t.Error("SetMinProtoVersion() does not return true")
+	}
+	get_version := ctx.GetMinProtoVersion()
+	if (get_version & TLS1_3_VERSION) != TLS1_3_VERSION {
+		t.Error("GetMinProtoVersion() does not return TLS1_3_VERSION")
+	}
+}
+
+func TestCtxMaxProtoVersion(t *testing.T) {
+	ctx, _ := NewCtx()
+	set_success := ctx.SetMaxProtoVersion(TLS1_3_VERSION)
+	if !set_success {
+		t.Error("SetMaxProtoVersion() does not return true")
+	}
+	get_version := ctx.GetMaxProtoVersion()
+	if (get_version & TLS1_3_VERSION) != TLS1_3_VERSION {
+		t.Error("GetMaxProtoVersion() does not return TLS1_3_VERSION")
+	}
+}
+
