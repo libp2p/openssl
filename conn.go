@@ -40,13 +40,16 @@ var (
 type Conn struct {
 	*SSL
 
-	conn             net.Conn
-	ctx              *Ctx // for gc
-	into_ssl         *readBio
-	from_ssl         *writeBio
-	is_shutdown      bool
-	mtx              sync.Mutex
-	want_read_future *utils.Future
+	conn                 net.Conn
+	ctx                  *Ctx // for gc
+	into_ssl             *readBio
+	from_ssl             *writeBio
+	is_shutdown          bool
+	mtx                  sync.Mutex
+	want_read_future     *utils.Future
+	handshake_started    bool
+	handshake_finished   bool
+	handshake_successful bool
 }
 
 type VerifyResult int
@@ -142,10 +145,14 @@ func newConn(conn net.Conn, ctx *Ctx) (*Conn, error) {
 	c := &Conn{
 		SSL: s,
 
-		conn:     conn,
-		ctx:      ctx,
-		into_ssl: into_ssl,
-		from_ssl: from_ssl}
+		conn:                 conn,
+		ctx:                  ctx,
+		into_ssl:             into_ssl,
+		from_ssl:             from_ssl,
+		handshake_started:    false,
+		handshake_finished:   false,
+		handshake_successful: false,
+	}
 	runtime.SetFinalizer(c, func(c *Conn) {
 		c.into_ssl.Disconnect(into_ssl_cbio)
 		c.from_ssl.Disconnect(from_ssl_cbio)
@@ -303,11 +310,26 @@ func (c *Conn) handshake() func() error {
 // Handshake performs an SSL handshake. If a handshake is not manually
 // triggered, it will run before the first I/O on the encrypted stream.
 func (c *Conn) Handshake() error {
+	c.mtx.Lock()
+	c.handshake_started = true
+	c.handshake_finished = false
+	c.handshake_successful = false
+	c.mtx.Unlock()
+	defer func() {
+		c.mtx.Lock()
+		c.handshake_finished = true
+		c.mtx.Unlock()
+	}()
 	err := tryAgain
 	for err == tryAgain {
 		err = c.handleError(c.handshake())
 	}
 	go c.flushOutputBuffer()
+	if err == nil {
+		c.mtx.Lock()
+		c.handshake_successful = true
+		c.mtx.Unlock()
+	}
 	return err
 }
 
@@ -383,6 +405,16 @@ func (c *Conn) shutdown() func() error {
 	defer c.mtx.Unlock()
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
+	timed_out := false
+	time.AfterFunc(300*time.Millisecond, func() {
+		timed_out = true
+	})
+	for !timed_out && c.handshake_started && !c.handshake_finished {
+		c.mtx.Unlock()
+		runtime.UnlockOSThread()
+		c.mtx.Lock()
+		runtime.LockOSThread()
+	}
 	rv, errno := C.SSL_shutdown(c.ssl)
 	if rv > 0 {
 		return nil
