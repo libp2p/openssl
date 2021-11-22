@@ -1,0 +1,9 @@
+name: Go Test Setup
+description: Set up the environment for go test
+runs:
+  using: "composite"
+  steps:
+    - name: Windows setup
+      shell: bash
+      if: ${{ runner.os == 'Windows' }}
+      run: echo 'PKG_CONFIG=C:/msys64/mingw64/bin/pkgconf' >> $GITHUB_ENV
