@@ -1,0 +1,7 @@
+#!C:/msys64/usr/bin/bash.exe
+
+if [[ "$GOARCH" == '386' ]]; then
+  C:/msys64/mingw32/bin/i686-w64-mingw32-pkgconf "$@"
+else
+  C:/msys64/mingw64/bin/pkgconf "$@"
+fi

@@ -6,4 +6,21 @@ runs:
     - name: Windows setup
       shell: bash
       if: ${{ runner.os == 'Windows' }}
-      run: echo 'PKG_CONFIG=C:/msys64/mingw64/bin/pkgconf' >> $GITHUB_ENV
+      run: |
+        echo 'PKG_CONFIG=${{ github.workspace }}/.github/scripts/pkg-config' >> $GITHUB_ENV
+        echo 'CGO_ENABLED=1' >> $GITHUB_ENV
+        echo 'CC_FOR_windows_386=C:/msys64/mingw32/bin/i686-w64-mingw32-gcc'
+        echo 'MSYSTEM=MINGW32' >> $GITHUB_ENV
+        ls C:/msys64/usr/bin
+        ls C:/msys64/mingw32/bin
+        ls C:/msys64/mingw64/bin
+    - name: Linux setup
+      shell: bash
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        sudo apt-get install gcc-multilib
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install libssl-dev:i386
+        echo 'CGO_ENABLED=1' >> $GITHUB_ENV
+        echo 'CC_FOR_linux_386=i686-w64-mingw32-gcc'
