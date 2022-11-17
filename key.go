@@ -429,7 +429,9 @@ func GenerateRSAKey(bits int) (PrivateKey, error) {
 func GenerateRSAKeyWithExponent(bits int, exponent int) (PrivateKey, error) {
 	rsa := C.RSA_generate_key(C.int(bits), C.ulong(exponent), nil, nil)
 	if rsa == nil {
-		return nil, fmt.Errorf("failed to generate RSA key: %+v (%s)", C.ERR_get_error(), string(C.ERR_error_string()))
+		errorCode := C.ERR_get_error()
+		errorMsg := C.GoString(C.ERR_lib_error_string(errorCode))
+		return nil, fmt.Errorf("failed to generate RSA key: %+v (%s)", errorCode, errorMsg)
 	}
 	key := C.X_EVP_PKEY_new()
 	if key == nil {
