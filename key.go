@@ -19,6 +19,7 @@ import "C"
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"runtime"
 	"unsafe"
@@ -428,7 +429,7 @@ func GenerateRSAKey(bits int) (PrivateKey, error) {
 func GenerateRSAKeyWithExponent(bits int, exponent int) (PrivateKey, error) {
 	rsa := C.RSA_generate_key(C.int(bits), C.ulong(exponent), nil, nil)
 	if rsa == nil {
-		return nil, errors.New("failed to generate RSA key")
+		return nil, fmt.Errorf("failed to generate RSA key: %+v", C.ERR_get_error())
 	}
 	key := C.X_EVP_PKEY_new()
 	if key == nil {
