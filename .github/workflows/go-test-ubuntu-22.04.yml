@@ -1,5 +1,5 @@
 # See:
-# https://github.com/libp2p/go-openssl/pull/25
+# https://github.com/Xfers/go-openssl/pull/25
 # https://github.com/protocol/.github/issues/349
 # for details.
 on: [push, pull_request]

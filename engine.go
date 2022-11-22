@@ -48,3 +48,16 @@ func EngineById(name string) (*Engine, error) {
 	})
 	return e, nil
 }
+
+func (e *Engine) SetDefault() error {
+	// Init
+	if C.ENGINE_init(e.e) == 0 {
+		C.ENGINE_free(e.e)
+		return fmt.Errorf("engine %s not initialized", e.e)
+	}
+
+	if C.ENGINE_set_default(e.e, C.ENGINE_METHOD_ALL) == 0 {
+		return fmt.Errorf("engine %s not set as default", e.e)
+	}
+	return nil
+}

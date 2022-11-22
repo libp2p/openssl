@@ -8,7 +8,7 @@ Forked from https://github.com/spacemonkeygo/openssl (unmaintained) to add:
 
 ---
 
-Please see http://godoc.org/github.com/libp2p/go-openssl for more info
+Please see http://godoc.org/github.com/Xfers/go-openssl for more info
 
 ---
 
