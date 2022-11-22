@@ -132,6 +132,8 @@ extern int X_EVP_SignInit(EVP_MD_CTX *ctx, const EVP_MD *type);
 extern int X_EVP_SignUpdate(EVP_MD_CTX *ctx, const void *d, unsigned int cnt);
 extern int X_EVP_DigestSignInit(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey);
 extern int X_EVP_DigestSign(EVP_MD_CTX *ctx, unsigned char *sigret, size_t *siglen, const unsigned char *tbs, size_t tbslen);
+extern int X_EVP_DigestSignUpdate(EVP_MD_CTX *ctx, const void *d, size_t cnt);
+extern int X_EVP_DigestSignFinal(EVP_MD_CTX *ctx, unsigned char *sigret, size_t *siglen);
 extern EVP_PKEY *X_EVP_PKEY_new(void);
 extern void X_EVP_PKEY_free(EVP_PKEY *pkey);
 extern int X_EVP_PKEY_size(EVP_PKEY *pkey);

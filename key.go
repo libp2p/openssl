@@ -19,6 +19,7 @@ import "C"
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"runtime"
 	"unsafe"
@@ -100,6 +101,9 @@ type PrivateKey interface {
 	// Signs the data using PKCS1.15
 	SignPKCS1v15(Method, []byte) ([]byte, error)
 
+	// Signs the data
+	Sign(method Method, data []byte) ([]byte, error)
+
 	// MarshalPKCS1PrivateKeyPEM converts the private key to PEM-encoded PKCS1
 	// format
 	MarshalPKCS1PrivateKeyPEM() (pem_block []byte, err error)
@@ -177,6 +181,33 @@ func (key *pKey) SignPKCS1v15(method Method, data []byte) ([]byte, error) {
 		}
 		return sig[:sigblen], nil
 	}
+}
+
+func (key *pKey) Sign(method Method, data []byte) ([]byte, error) {
+	// std::vector<uint8_t> sign(const uint8_t *data, size_t size) const
+	ctx := C.X_EVP_MD_CTX_new()
+	defer C.X_EVP_MD_CTX_free(ctx)
+
+	if C.X_EVP_DigestSignInit(ctx, nil, method, nil, key.key) != 1 {
+		return nil, fmt.Errorf("EVP_DigestSignInit")
+	}
+
+	if C.X_EVP_DigestSignUpdate(ctx, unsafe.Pointer(&data[0]), C.size_t(len(data))) <= 0 {
+		return nil, fmt.Errorf("EVP_DigestSignUpdate")
+	}
+
+	var msgLenEnc C.size_t
+	if (C.X_EVP_DigestSignFinal(ctx, nil, &msgLenEnc)) <= 0 {
+		return nil, fmt.Errorf("EVP_DigestSignFinal get length")
+	}
+
+	sig := make([]byte, msgLenEnc)
+	if (C.X_EVP_DigestSignFinal(ctx, (*C.uchar)(unsafe.Pointer(&sig[0])), &msgLenEnc)) <= 0 {
+		return nil, fmt.Errorf("EVP_DigestSignFinal")
+	}
+
+	return sig, nil
+
 }
 
 func (key *pKey) VerifyPKCS1v15(method Method, data, sig []byte) error {

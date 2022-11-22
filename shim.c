@@ -58,6 +58,14 @@ int X_EVP_DigestSign(EVP_MD_CTX *ctx, unsigned char *sigret,
 	return EVP_DigestSign(ctx, sigret, siglen, tbs, tbslen);
 }
 
+int X_EVP_DigestSignUpdate(EVP_MD_CTX *ctx, const void *d, size_t cnt){
+	return EVP_DigestSignUpdate(ctx, d, cnt);
+}
+
+int X_EVP_DigestSignFinal(EVP_MD_CTX *ctx, unsigned char *sigret,
+		size_t *siglen) {
+	return EVP_DigestSignFinal(ctx, sigret, siglen);
+}
 
 int X_EVP_DigestVerifyInit(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx,
 		const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey){
