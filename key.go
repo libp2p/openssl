@@ -192,17 +192,17 @@ func (key *pKey) Sign(method Method, data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("EVP_DigestSignInit")
 	}
 
-	if C.X_EVP_DigestSignUpdate(ctx, unsafe.Pointer(&data[0]), C.size_t(len(data))) <= 0 {
+	if C.X_EVP_DigestSignUpdate(ctx, unsafe.Pointer(&data[0]), C.size_t(len(data))) != 1 {
 		return nil, fmt.Errorf("EVP_DigestSignUpdate")
 	}
 
 	var msgLenEnc C.size_t
-	if (C.X_EVP_DigestSignFinal(ctx, nil, &msgLenEnc)) <= 0 {
+	if (C.X_EVP_DigestSignFinal(ctx, nil, &msgLenEnc)) != 1 {
 		return nil, fmt.Errorf("EVP_DigestSignFinal get length")
 	}
 
 	sig := make([]byte, msgLenEnc)
-	if (C.X_EVP_DigestSignFinal(ctx, (*C.uchar)(unsafe.Pointer(&sig[0])), &msgLenEnc)) <= 0 {
+	if (C.X_EVP_DigestSignFinal(ctx, (*C.uchar)(unsafe.Pointer(&sig[0])), &msgLenEnc)) != 1 {
 		return nil, fmt.Errorf("EVP_DigestSignFinal")
 	}
 
