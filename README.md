@@ -1,3 +1,9 @@
+⚠️⚠️⚠️
+
+**Status:** Archived and not maintained. Please see https://github.com/libp2p/go-openssl/issues/41 for details.
+
+⚠️⚠️⚠️
+
 # OpenSSL bindings for Go
 
 Forked from https://github.com/spacemonkeygo/openssl (unmaintained) to add:
